@@ -1,0 +1,10 @@
+#!/bin/bash
+#----------
+if [[ $UID == 0 ]]
+then
+	echo "-----------------------------------------"
+	bash source/run-init.sh
+	echo "-----------------------------------------"	
+fi
+
+#db_info=$(mongo --quiet localhost:27017/smolldock --eval 'db.user.find()')
