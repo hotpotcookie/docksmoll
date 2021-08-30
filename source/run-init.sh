@@ -1,14 +1,24 @@
 #!/bin/bash
 #----------
-echo "[dsmoll]: checking required package ..."
-check_mongodb=$(dpkg-query -l | grep "mongo")
+GREEN="\e[32m"
+YELLOW="\e[33m"
+ENDCOLOR="\e[0m"
+#----------
+echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: checking required package ..."
 check_docker=$(dpkg-query -l | grep "docker")
 
-if [[ ! "$check_mongodb" ]]; then
-	read -p "[dsmoll]: mongodb not found. Install now (y/n) " opt
+if [[ ! "$check_docker" ]]; then
+	echo -en "${YELLOW}[dsmoll]${ENDCOLOR}"
+	read -p ": docker not found. Install now (y/n): " opt
 	if [[ "$opt" == "y" || "$opt" == "Y" ]]; then
-		bash run-auto-installer.sh
+		echo -e "----------------------------------------- ${GREEN}(updating apt)${ENDCOLOR}"			
+		bash source/run-auto-installer.sh & wait
+		bash source/run-menu.sh
+	else
+		echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: exitting ..."
+		exit 0
 	fi
 else
-	echo "[dsmoll]: setting up mongodb ..."	
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: running docker service ..."	
+	bash source/run-menu.sh	
 fi
