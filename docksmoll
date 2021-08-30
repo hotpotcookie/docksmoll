@@ -7,4 +7,11 @@ then
 	echo "-----------------------------------------"	
 fi
 
-#db_info=$(mongo --quiet localhost:27017/smolldock --eval 'db.user.find()')
+# db_info=$(mongo --quiet localhost:27017/smolldock --eval 'db.user.find()')
+# Docker Command
+# ----------------------------------------------------------------------
+# - docker search $image                       ## search available image
+# - docker pull $image:$tag                    ## download image dengan tag. default latest
+# - docker container ls -a                     ## get all container process status
+# - docker start/stop/restart $container_id    ## manage container service
+# - docker exec -it $container_name /bin/bash  ## getting to container's tty
