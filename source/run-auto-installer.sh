@@ -4,6 +4,9 @@ GREEN="\e[32m"
 YELLOW="\e[33m"
 ENDCOLOR="\e[0m"
 #----------
+CONTAINER_TIMEZONE="Asia/Jakarta"
+ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONTAINER_TIMEZONE > /etc/timezone
+#----------
 apt-get update -y & wait; echo -e "----------------------------------------- ${GREEN}(installing dependencies)${ENDCOLOR}"
 apt install build-essential apt-transport-https ca-certificates curl software-properties-common -y & wait; echo -e "----------------------------------------- ${GREEN}(adding gpg key)${ENDCOLOR}"
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - & wait; echo -e "----------------------------------------- ${GREEN}(adding docker to apt lists)${ENDCOLOR}"
