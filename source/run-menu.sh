@@ -8,7 +8,7 @@ main() {
 	while :; do
 		clear
 		docker image ls | awk 'NR!=1' | tr -s ' ' '@' > tmp/image.lst & wait
-		docker.exe container ls -a | awk 'NR!=1' | tr -s ' ' '@' > tmp/container.lst & wait
+		docker container ls -a | awk 'NR!=1' | tr -s ' ' '@' > tmp/container.lst & wait
 		curdate=$(date +'%D %T %p')
 
 		echo -e "${GREEN}docksmoll 1.1.1${ENDCOLOR}                  $curdate"
@@ -45,18 +45,21 @@ main() {
 
 search_img() {
 	echo "--"
-	read -p ":: ENTER IMAGE KEYWORD" image
+	read -p ":: ENTER IMAGE KEYWORD: " image
 	docker search $image
 	echo "--"	
 }
 pull_img() {
 	echo "--"
-	read -p ":: ENTER IMAGE KEYWORD" image
+	read -p ":: ENTER IMAGE KEYWORD: " image
 	docker pull $image
 	echo "--"		
 }
 
-# db_info=$(mongo --quiet localhost:27017/smolldock --eval 'db.user.find()')
+## MAIN METHOD
+main
+
+# db_info=$(mongo --quiet localhost:27017/smolldock --eval db.user.find())
 # Docker Command
 # ----------------------------------------------------------------------
 # - docker search $image                       ## search available image

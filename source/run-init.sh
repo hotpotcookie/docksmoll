@@ -20,5 +20,5 @@ if [[ ! "$check_docker" ]]; then
 	fi
 else
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: running docker service ..."	
-	bash source/run-menu.sh	
+	bash source/run-menu.sh
 fi
