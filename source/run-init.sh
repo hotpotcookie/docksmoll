@@ -12,13 +12,13 @@ if [[ ! "$check_docker" ]]; then
 	read -p ": docker not found. Install now (y/n): " opt
 	if [[ "$opt" == "y" || "$opt" == "Y" ]]; then
 		echo -e "----------------------------------------- ${GREEN}(updating apt)${ENDCOLOR}"			
-		bash source/run-auto-installer.sh & wait; sleep 5s
+		bash source/run-auto-installer.sh & wait; sleep 3s
 		bash source/run-menu.sh
 	else
 		echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: exitting ..."
 		exit 0
 	fi
 else
-	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: running docker service ..."	
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: running docker service ..."; sleep 3s
 	bash source/run-menu.sh
 fi
