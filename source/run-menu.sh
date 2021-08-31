@@ -4,12 +4,9 @@ GREEN="\e[32m"
 YELLOW="\e[33m"
 ENDCOLOR="\e[0m"
 #----------
-shopt -s expand_aliases
-source /home/cookie/.bashrc
-#----------
 while :; do
 	clear
-	dockerw image ls | awk 'NR!=1' | tr -s ' ' '@' > tmp/image.lst
+	docker image ls | awk 'NR!=1' | tr -s ' ' '@' > tmp/image.lst
 	curdate=$(date +'%D %T %p')
 
 	echo -e "${GREEN}docksmoll 1.1.1${ENDCOLOR}                  $curdate"
