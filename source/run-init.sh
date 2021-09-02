@@ -6,12 +6,18 @@ ENDCOLOR="\e[0m"
 #----------
 echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: checking required package ..."
 check_docker=$(dpkg-query -l | grep "docker")
+if [[ ! -d "tmp/" ]]; then
+	mkdir tmp
+fi
+touch tmp/container.lst
+touch tmp/image.lst
+
 
 if [[ ! "$check_docker" ]]; then
 	echo -en "${YELLOW}[dsmoll]${ENDCOLOR}"
 	read -p ": docker not found. Install now (y/n): " opt
 	if [[ "$opt" == "y" || "$opt" == "Y" ]]; then
-		echo -e "----------------------------------------- ${GREEN}(updating apt)${ENDCOLOR}"			
+		echo -e "----------------------------------------------------- ${GREEN}(updating apt)${ENDCOLOR}"			
 		bash source/run-auto-installer.sh & wait; sleep 3s
 		bash source/run-menu.sh
 	else
