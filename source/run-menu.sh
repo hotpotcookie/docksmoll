@@ -5,6 +5,7 @@ YELLOW="\e[33m"
 BLUE="\e[36m"
 ENDCOLOR="\e[0m"
 #----------
+## MAIN METHOD
 main() {
 	while :; do
 		clear
@@ -29,11 +30,11 @@ main() {
 			echo -e "$body_ctr"; echo "-----------------------------------------------------"; fi
 
 		echo -e "====================================================="
-		echo -e "${BLUE}[1]${ENDCOLOR} SEARCH IMAGE | ${BLUE}[4]${ENDCOLOR} CREATE CONTAINER | ${YELLOW}[7]${ENDCOLOR} START"
-		echo -e "${BLUE}[2]${ENDCOLOR} PULL IMAGE   | ${BLUE}[5]${ENDCOLOR} RENAME CONTAINER | ${YELLOW}[8]${ENDCOLOR} STOP"
-		echo -e "${BLUE}[3]${ENDCOLOR} DROP IMAGE   | ${BLUE}[6]${ENDCOLOR} DROP CONTAINER   | ${YELLOW}[9]${ENDCOLOR} RESTART"
+		echo -e "${BLUE}[1]${ENDCOLOR} SEARCH IMAGE | ${BLUE}[4]${ENDCOLOR} CREATE CONTAINER | ${BLUE}[7]${ENDCOLOR} START"
+		echo -e "${BLUE}[2]${ENDCOLOR} PULL IMAGE   | ${BLUE}[5]${ENDCOLOR} RENAME CONTAINER | ${BLUE}[8]${ENDCOLOR} STOP"
+		echo -e "${BLUE}[3]${ENDCOLOR} DROP IMAGE   | ${BLUE}[6]${ENDCOLOR} DROP CONTAINER   | ${BLUE}[9]${ENDCOLOR} RESTART"
 		echo -e "-----------------------------------------------------"
-		echo -e "${YELLOW}[S]${ENDCOLOR} JOIN SHELL   | ${BLUE}[C]${ENDCOLOR} CLEAR SCREEN     | ${BLUE}[E]${ENDCOLOR} EXIT   "
+		echo -e "${BLUE}[S]${ENDCOLOR} JOIN SHELL   | ${BLUE}[C]${ENDCOLOR} CLEAR SCREEN     | ${BLUE}[E]${ENDCOLOR} EXIT   "
 		echo -e "-----------------------------------------------------"
 		while :; do
 			echo -en "${YELLOW}>>${ENDCOLOR}"
@@ -48,6 +49,7 @@ main() {
 	done
 }
 
+## SUB ACTION
 search_img() {
 	echo "--"
 	read -p ":: ENTER IMAGE NAME: " image
@@ -76,9 +78,9 @@ drop_img() {
 	check_ref=$(docker container ls -a | grep "$image")
 	if [[ "$image" == "$image2" ]]; then
 		if [[ "$image" && "$image" != "\n" && "$image" == " " ]]; then
-			echo "$check_ref"
-			echo "image $image have reference(s) to existing container"
-			read -p "force remove image ? (y): " opt
+			echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: image $image have reference(s) to existing container"
+			echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: force remove image ? (y):"
+			read -p " " opt
 			if [[ "$opt" == "y" || "$opt" == "Y" ]]; then
 				docker rmi -f $image
 				docker image prune -f
@@ -94,8 +96,11 @@ create_ctr() {
 	echo "--"
 	read -p ":: ENTER IMAGE NAME: " image
 	read -p ":: ENTER CONTAINER NAME: " container
+	read -p ":: CHOOSE INTERPRETER: " interpreter
 	echo "--"
-	echo -n ":: container hash: "; docker create --name "$container" $image
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: container have been created ..."
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: initiating shell ...\n--"
+	docker run -it --name "$container" $image $interpreter
 	echo " "
 }
 rename_ctr() {
@@ -103,7 +108,7 @@ rename_ctr() {
 	read -p ":: ENTER CONTAINER NAME: " container
 	read -p ":: ENTER NEW CONTAINER NAME: " container2
 	echo "--"
-	echo ":: remaed container: $container > $container2"; docker rename "$container" "$container2"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: renaming a container: $container > $container2"; docker rename "$container" "$container2"
 	echo " "
 }
 drop_ctr() {
@@ -112,12 +117,48 @@ drop_ctr() {
 	read -p ":: RE-ENTER CONTAINER NAME: " container2
 	echo "--"
 	if [[ "$container" == "$container2" ]]; then
-		echo -n ":: deleted container: "; docker rm "$container"
+		echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: deleting a container: "; docker rm "$container"
 	fi
 	echo " "
 }
+start_ctr() {
+	echo "--"
+	read -p ":: ENTER CONTAINER ID: " container
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: running a container ..."
+	echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: container id: "
+	docker start "$container"
+	echo " "
+}
+stop_ctr() {
+	echo "--"
+	read -p ":: ENTER CONTAINER ID: " container
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: stopping a container ..."
+	echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: container id: "
+	docker stop "$container"
+	echo " "
+}
+restart_ctr() {
+	echo "--"
+	read -p ":: ENTER CONTAINER ID: " container
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: restarting a container ..."
+	echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: container id: "
+	docker restart "$container"
+	echo " "
+}
+join_shell() {
+	echo "--"
+	read -p ":: ENTER CONTAINER NAME: " container
+	read -p ":: CHOOSE INTERPRETER: " interpreter
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: initiating shell ...\n--"
+	docker exec -it "$container" "$interpreter"
+	echo " "
+}
 
-## MAIN METHOD
+## RUN MAIN METHOD
 main
 
 # db_info=$(mongo --quiet localhost:27017/smolldock --eval db.user.find())
@@ -126,6 +167,7 @@ main
 # - docker search $image                       ## search available image
 # - docker pull $image:$tag                    ## download image dengan tag. default latest
 # - docker container ls -a                     ## get all container process status
+# - docker run -it --name $container $image    ## create container + run init
 # - docker start/stop/restart $container_id    ## manage container service
 # - docker exec -it $container_name /bin/bash  ## getting to container's tty
 # - docker info                                ## get additional info
