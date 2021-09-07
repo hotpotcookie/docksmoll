@@ -29,11 +29,11 @@ main() {
 			echo -e "${GREEN}CREATED CONTAINERS${ENDCOLOR}\n-----------------------------------------------------"
 			echo -e "$body_ctr"; echo "-----------------------------------------------------"; fi
 
-		echo -e "====================================================="
 		echo -e "${BLUE}[1]${ENDCOLOR} SEARCH IMAGE | ${BLUE}[4]${ENDCOLOR} CREATE CONTAINER | ${BLUE}[7]${ENDCOLOR} START"
 		echo -e "${BLUE}[2]${ENDCOLOR} PULL IMAGE   | ${BLUE}[5]${ENDCOLOR} RENAME CONTAINER | ${BLUE}[8]${ENDCOLOR} STOP"
 		echo -e "${BLUE}[3]${ENDCOLOR} DROP IMAGE   | ${BLUE}[6]${ENDCOLOR} DROP CONTAINER   | ${BLUE}[9]${ENDCOLOR} RESTART"
 		echo -e "-----------------------------------------------------"
+		echo -e "${BLUE}[N]${ENDCOLOR} NEW COMMIT   | ${BLUE}[T]${ENDCOLOR} CREATE IMAGE TAG | ${BLUE}[P]${ENDCOLOR} PUSH"
 		echo -e "${BLUE}[S]${ENDCOLOR} JOIN SHELL   | ${BLUE}[C]${ENDCOLOR} CLEAR SCREEN     | ${BLUE}[E]${ENDCOLOR} EXIT   "
 		echo -e "-----------------------------------------------------"
 		while :; do
@@ -180,3 +180,12 @@ main
 #		img_name=$(echo $line | cut -d '@' -f 1)
 #		echo "$range_deli $img_name"
 #	done < "tmp/search_img.lst"
+# docker fitur
+# - commit
+#	$ docker commit $container $image:$tag
+# - tag
+#	$ docker tag $image-id $image:$tag
+# - login & push
+#	$ docker login --username $username --password -$password 2> tmp/auth-suppress.info
+#	$ if [[ ! $(cat tmp/auth-suppress.info | grep "Error") ]]
+#	$ docker push
