@@ -43,6 +43,7 @@ main() {
 				1) search_img;;	4) create_ctr;;	7) start_ctr;;
 				2) pull_img;;	5) rename_ctr;;	8) stop_ctr;;
 				3) drop_img;;	6) drop_ctr;;	9) restart_ctr;;
+				"N") new_commit;; "T") create_tag;; "P") push_img;;
 				"S") join_shell;; "C") break;; "E") exit 0;;
 			esac
 		done
@@ -156,6 +157,45 @@ join_shell() {
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: initiating shell ...\n--"
 	docker exec -it "$container" "$interpreter"
 	echo " "
+}
+new_commit() {
+	echo "--"
+	read -p ":: ENTER CONTAINER NAME: " container
+	read -p ":: ENTER IMAGE NAME: " image
+	read -p ":: CHOOSE TAG VERSION: " tag
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: writing image ...\n--"
+	docker commit "$container" "$image":"$tag"
+	echo " "
+}
+create_tag() {
+	echo "--"
+	read -p ":: ENTER IMAGE ID: " image_id
+	read -p ":: ENTER NEW IMAGE NAME: " image
+	read -p ":: CHOOSE TAG VERSION: " tag
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: creating new tag ...\n--"
+	docker tag "$image_id" "$image":"$tag"
+	echo " "
+}
+push_img() {
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: verifying account for Docker.hub ...\n--"
+	read -p ":: ENTER USERNAME: " username
+	read -p ":: ENTER PASSWORD: " password
+	echo "--"
+	docker login --username "$username" --password "$password" 2> tmp/auth-suppress.info
+	get_status=$(cat tmp/auth-suppress.info | grep "Error")
+	if [[ ! "$get_status" ]]; then
+		echo "--"
+		read -p ":: ENTER IMAGE NAME: " image
+		read -p ":: CHOOSE TAG VERSION: " tag
+		echo "--"
+		docker push "$image":"$tag"
+		echo " "
+	else
+		echo -e "Authentication failed\n"
+	fi
 }
 
 ## RUN MAIN METHOD
