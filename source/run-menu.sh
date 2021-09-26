@@ -174,7 +174,7 @@ new_commit() {
 	read -p ":: CHOOSE TAG VERSION: " tag
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: writing image ...\n--"
-	docker commit "$container" "$image":"$tag"
+	"$docker_" commit "$container" "$image":"$tag"
 	echo " "
 }
 create_tag() {
@@ -184,7 +184,7 @@ create_tag() {
 	read -p ":: CHOOSE TAG VERSION: " tag
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: creating new tag ...\n--"
-	docker tag "$image_id" "$image":"$tag"
+	"$docker_" tag "$image_id" "$image":"$tag"
 	echo " "
 }
 push_img() {
@@ -193,14 +193,14 @@ push_img() {
 	read -p ":: ENTER USERNAME: " username
 	read -p ":: ENTER PASSWORD: " password
 	echo "--"
-	docker login --username "$username" --password "$password" 2> tmp/auth-suppress.info
+	"$docker_" login --username "$username" --password "$password" 2> tmp/auth-suppress.info
 	get_status=$(cat tmp/auth-suppress.info | grep "Error")
 	if [[ ! "$get_status" ]]; then
 		echo "--"
 		read -p ":: ENTER IMAGE NAME: " image
 		read -p ":: CHOOSE TAG VERSION: " tag
 		echo "--"
-		docker push "$image":"$tag"
+		"$docker_" push "$image":"$tag"
 		echo " "
 	else
 		echo -e "Authentication failed\n"
