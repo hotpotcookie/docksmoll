@@ -5,17 +5,26 @@ YELLOW="\e[33m"
 BLUE="\e[36m"
 ENDCOLOR="\e[0m"
 #----------
+check_wsl=$(cat /proc/version | grep -E "Microsoft|WSL")
+if [[ "$1" ]]; then
+	docker_="$1"
+else
+	docker_=$(which docker)	
+fi
+#----------
 ## MAIN METHOD
 main() {
 	while :; do
 		clear
-		docker image ls | awk 'NR!=1' | tr -s ' ' '@' > tmp/image.lst & wait
-		docker container ls -a | awk 'NR!=1' | tr -s ' ' '@' > tmp/container.lst & wait
+		"$docker_" image ls | awk 'NR!=1' | tr -s ' ' '@' > tmp/image.lst & wait
+		"$docker_" container ls -a | awk 'NR!=1' | tr -s ' ' '@' > tmp/container.lst & wait
 		curdate=$(date +'%D %T %p')
 		echo -e "${YELLOW}docksmoll 1.1.1${ENDCOLOR}                  $curdate"
 		echo -e "-----------------------------------------------------"
-		body_img=$(sudo docker images -a --format "table {{.Repository}}:{{.Tag}}\t| {{.ID}} | {{.Size}}" | awk 'NR!=1')
-		body_ctr=$(sudo docker container ls -a --format "table {{.Names}} ({{.Image}})\t| {{.ID}} | {{.Status}}" | awk 'NR!=1')
+		echo -e "${YELLOW}command${ENDCOLOR}: $docker_"				
+		echo -e "-----------------------------------------------------"		
+		body_img=$(sudo "$docker_" images -a --format "table {{.Repository}}:{{.Tag}}\t| {{.ID}} | {{.Size}}" | awk 'NR!=1')
+		body_ctr=$(sudo "$docker_" container ls -a --format "table {{.Names}} ({{.Image}})\t| {{.ID}} | {{.Status}}" | awk 'NR!=1')
 		# docker image -a
 		# docker ps
 		if [[ ! -s tmp/image.lst ]]; then
@@ -53,8 +62,8 @@ main() {
 search_img() {
 	echo "--"
 	read -p ":: ENTER IMAGE NAME: " image
-	header=$(docker search --format "table {{.Name}} ({{.StarCount}})\t| {{.IsAutomated}}\t| {{.IsOfficial}}" $image | awk 'NR==1')
-	body=$(docker search --format "table {{.Name}} ({{.StarCount}})\t| {{.IsAutomated}}\t| {{.IsOfficial}}" $image | awk 'NR!=1')
+	header=$("$docker_" search --format "table {{.Name}} ({{.StarCount}})\t| {{.IsAutomated}}\t| {{.IsOfficial}}" $image | awk 'NR==1')
+	body=$("$docker_" search --format "table {{.Name}} ({{.StarCount}})\t| {{.IsAutomated}}\t| {{.IsOfficial}}" $image | awk 'NR!=1')
 	header_len=$(echo "$header" | wc -c); header_len=$((--header_len))
 	for i in $(seq 1 $header_len); do echo -n "-" ;done; echo ""
 	echo -e "${GREEN}$header${ENDCOLOR}"
@@ -67,7 +76,7 @@ pull_img() {
 	echo "--"
 	read -p ":: ENTER IMAGE NAME: " image
 	echo "--"
-	docker pull $image
+	"$docker_" pull $image
 	echo " "
 }
 drop_img() {
@@ -75,19 +84,19 @@ drop_img() {
 	read -p ":: ENTER IMAGE NAME: " image
 	read -p ":: RE-ENTER IMAGE NAME: " image2
 	echo "--"
-	check_ref=$(docker container ls -a | grep "$image")
+	check_ref=$("$docker_" container ls -a | grep "$image")
 	if [[ "$image" == "$image2" ]]; then
 		if [[ "$image" && "$image" != "\n" && "$image" == " " ]]; then
 			echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: image $image have reference(s) to existing container"
 			echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: force remove image ? (y):"
 			read -p " " opt
 			if [[ "$opt" == "y" || "$opt" == "Y" ]]; then
-				docker rmi -f $image
-				docker image prune -f
+				"$docker_" rmi -f $image
+				"$docker_" image prune -f
 			fi
 		else
-			docker rmi $image
-			docker image prune -f
+			"$docker_" rmi $image
+			"$docker_" image prune -f
 		fi
 	fi
 	echo " "
@@ -100,7 +109,7 @@ create_ctr() {
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: container have been created ..."
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: initiating shell ...\n--"
-	docker run -it --name "$container" $image $interpreter
+	"$docker_" run -it --name "$container" $image $interpreter
 	echo " "
 }
 rename_ctr() {
@@ -108,7 +117,7 @@ rename_ctr() {
 	read -p ":: ENTER CONTAINER NAME: " container
 	read -p ":: ENTER NEW CONTAINER NAME: " container2
 	echo "--"
-	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: renaming a container: $container > $container2"; docker rename "$container" "$container2"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: renaming a container: $container > $container2"; "$docker_" rename "$container" "$container2"
 	echo " "
 }
 drop_ctr() {
@@ -117,7 +126,7 @@ drop_ctr() {
 	read -p ":: RE-ENTER CONTAINER NAME: " container2
 	echo "--"
 	if [[ "$container" == "$container2" ]]; then
-		echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: deleting a container: "; docker rm "$container"
+		echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: deleting a container: "; "$docker_" rm "$container"
 	fi
 	echo " "
 }
@@ -127,7 +136,7 @@ start_ctr() {
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: running a container ..."
 	echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: container id: "
-	docker start "$container"
+	"$docker_" start "$container"
 	echo " "
 }
 stop_ctr() {
@@ -136,7 +145,7 @@ stop_ctr() {
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: stopping a container ..."
 	echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: container id: "
-	docker stop "$container"
+	"$docker_" stop "$container"
 	echo " "
 }
 restart_ctr() {
@@ -145,7 +154,7 @@ restart_ctr() {
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: restarting a container ..."
 	echo -en "${YELLOW}[dsmoll]${ENDCOLOR}: container id: "
-	docker restart "$container"
+	"$docker_" restart "$container"
 	echo " "
 }
 join_shell() {
@@ -154,7 +163,7 @@ join_shell() {
 	read -p ":: CHOOSE INTERPRETER: " interpreter
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: initiating shell ...\n--"
-	docker exec -it "$container" "$interpreter"
+	"$docker_" exec -it "$container" "$interpreter"
 	echo " "
 }
 
