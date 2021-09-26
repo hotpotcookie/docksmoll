@@ -6,14 +6,14 @@ ENDCOLOR="\e[0m"
 #----------
 echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: checking required package ..."
 check_docker=$(dpkg-query -l | grep "docker")
+check_wsl=$(cat /proc/version | grep -E "Microsoft|WSL")
 if [[ ! -d "tmp/" ]]; then
 	mkdir tmp
 fi
 touch tmp/container.lst
 touch tmp/image.lst
-
-
-if [[ ! "$check_docker" ]]; then
+#----------
+if [[ ! "$check_docker" && ! "$check_wsl" ]]; then
 	echo -en "${YELLOW}[dsmoll]${ENDCOLOR}"
 	read -p ": docker not found. Install now (y/n): " opt
 	if [[ "$opt" == "y" || "$opt" == "Y" ]]; then
@@ -25,6 +25,15 @@ if [[ ! "$check_docker" ]]; then
 		exit 0
 	fi
 else
+	if [[ "$check_wsl" ]]; then
+		echo -en "${YELLOW}[dsmoll]${ENDCOLOR}"
+		read -p ": specify the docker.exe path: " command
+		echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: running docker service ..."; sleep 3s
+		bash source/run-menu.sh "$command"
+		exit 0		
+	fi	
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: running docker service ..."; sleep 3s
 	bash source/run-menu.sh
+	exit 0
 fi
+#----------
