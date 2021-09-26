@@ -38,11 +38,11 @@ main() {
 			echo -e "${GREEN}CREATED CONTAINERS${ENDCOLOR}\n-----------------------------------------------------"
 			echo -e "$body_ctr"; echo "-----------------------------------------------------"; fi
 
-		echo -e "====================================================="
 		echo -e "${BLUE}[1]${ENDCOLOR} SEARCH IMAGE | ${BLUE}[4]${ENDCOLOR} CREATE CONTAINER | ${BLUE}[7]${ENDCOLOR} START"
 		echo -e "${BLUE}[2]${ENDCOLOR} PULL IMAGE   | ${BLUE}[5]${ENDCOLOR} RENAME CONTAINER | ${BLUE}[8]${ENDCOLOR} STOP"
 		echo -e "${BLUE}[3]${ENDCOLOR} DROP IMAGE   | ${BLUE}[6]${ENDCOLOR} DROP CONTAINER   | ${BLUE}[9]${ENDCOLOR} RESTART"
 		echo -e "-----------------------------------------------------"
+		echo -e "${BLUE}[N]${ENDCOLOR} NEW COMMIT   | ${BLUE}[T]${ENDCOLOR} CREATE IMAGE TAG | ${BLUE}[P]${ENDCOLOR} PUSH"
 		echo -e "${BLUE}[S]${ENDCOLOR} JOIN SHELL   | ${BLUE}[C]${ENDCOLOR} CLEAR SCREEN     | ${BLUE}[E]${ENDCOLOR} EXIT   "
 		echo -e "-----------------------------------------------------"
 		while :; do
@@ -52,6 +52,7 @@ main() {
 				1) search_img;;	4) create_ctr;;	7) start_ctr;;
 				2) pull_img;;	5) rename_ctr;;	8) stop_ctr;;
 				3) drop_img;;	6) drop_ctr;;	9) restart_ctr;;
+				"N") new_commit;; "T") create_tag;; "P") push_img;;
 				"S") join_shell;; "C") break;; "E") exit 0;;
 			esac
 		done
@@ -166,6 +167,45 @@ join_shell() {
 	"$docker_" exec -it "$container" "$interpreter"
 	echo " "
 }
+new_commit() {
+	echo "--"
+	read -p ":: ENTER CONTAINER NAME: " container
+	read -p ":: ENTER IMAGE NAME: " image
+	read -p ":: CHOOSE TAG VERSION: " tag
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: writing image ...\n--"
+	docker commit "$container" "$image":"$tag"
+	echo " "
+}
+create_tag() {
+	echo "--"
+	read -p ":: ENTER IMAGE ID: " image_id
+	read -p ":: ENTER NEW IMAGE NAME: " image
+	read -p ":: CHOOSE TAG VERSION: " tag
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: creating new tag ...\n--"
+	docker tag "$image_id" "$image":"$tag"
+	echo " "
+}
+push_img() {
+	echo "--"
+	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: verifying account for Docker.hub ...\n--"
+	read -p ":: ENTER USERNAME: " username
+	read -p ":: ENTER PASSWORD: " password
+	echo "--"
+	docker login --username "$username" --password "$password" 2> tmp/auth-suppress.info
+	get_status=$(cat tmp/auth-suppress.info | grep "Error")
+	if [[ ! "$get_status" ]]; then
+		echo "--"
+		read -p ":: ENTER IMAGE NAME: " image
+		read -p ":: CHOOSE TAG VERSION: " tag
+		echo "--"
+		docker push "$image":"$tag"
+		echo " "
+	else
+		echo -e "Authentication failed\n"
+	fi
+}
 
 ## RUN MAIN METHOD
 main
@@ -189,3 +229,12 @@ main
 #		img_name=$(echo $line | cut -d '@' -f 1)
 #		echo "$range_deli $img_name"
 #	done < "tmp/search_img.lst"
+# docker fitur
+# - commit
+#	$ docker commit $container $image:$tag
+# - tag
+#	$ docker tag $image-id $image:$tag
+# - login & push
+#	$ docker login --username $username --password -$password 2> tmp/auth-suppress.info
+#	$ if [[ ! $(cat tmp/auth-suppress.info | grep "Error") ]]
+#	$ docker push
