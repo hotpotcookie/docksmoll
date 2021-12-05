@@ -34,6 +34,7 @@ main() {
 			echo -e "$body_img"; echo "-----------------------------------------------------"; fi
 		if [[ ! -s tmp/container.lst ]]; then
 			echo "NO CONTAINERS HAVE BEEN CREATED"
+			echo "-----------------------------------------------------";			
 		else
 			echo -e "${GREEN}CREATED CONTAINERS${ENDCOLOR}\n-----------------------------------------------------"
 			echo -e "$body_ctr"; echo "-----------------------------------------------------"; fi
@@ -191,8 +192,8 @@ push_img() {
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: verifying account for Docker.hub ...\n--"
 	read -p ":: ENTER USERNAME: " username
-	read -p ":: ENTER PASSWORD: " password
-	echo "--"
+	read -sp ":: ENTER PASSWORD: " password
+	echo -e "\n--"
 	"$docker_" login --username "$username" --password "$password" 2> tmp/auth-suppress.info
 	get_status=$(cat tmp/auth-suppress.info | grep "Error")
 	if [[ ! "$get_status" ]]; then
