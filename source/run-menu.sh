@@ -1,8 +1,10 @@
 #!/bin/bash
 #----------
+RED="\e[31m"
 GREEN="\e[32m"
 YELLOW="\e[33m"
 BLUE="\e[36m"
+PURPLE="\e[35m"
 ENDCOLOR="\e[0m"
 #----------
 check_wsl=$(cat /proc/version | grep -E "Microsoft|WSL")
@@ -19,25 +21,34 @@ main() {
 		"$docker_" image ls | awk 'NR!=1' | tr -s ' ' '@' > tmp/image.lst & wait
 		"$docker_" container ls -a | awk 'NR!=1' | tr -s ' ' '@' > tmp/container.lst & wait
 		curdate=$(date +'%D %T %p')
-		echo -e "${YELLOW}docksmoll 1.1.1${ENDCOLOR}                  $curdate"
+		echo -e "${GREEN}docksmoll 1.1.1${ENDCOLOR}                  $curdate"
 		echo -e "-----------------------------------------------------"
-		echo -e "${YELLOW}command${ENDCOLOR}: $docker_"				
+		echo -e "${GREEN}command${ENDCOLOR}: $docker_"				
 		echo -e "-----------------------------------------------------"		
-		body_img=$(sudo "$docker_" images -a --format "table {{.Repository}}:{{.Tag}}\t| {{.ID}} | {{.Size}}" | awk 'NR!=1')
+		body_img=$(sudo "$docker_" image ls --format "table {{.Repository}}:{{.Tag}}\t| {{.ID}} | {{.Size}}" | awk 'NR!=1')
 		body_ctr=$(sudo "$docker_" container ls -a --format "table {{.Names}} ({{.Image}})\t| {{.ID}} | {{.Status}}" | awk 'NR!=1')
-		# docker image -a
-		# docker ps
+		echo -e "$body_ctr" > tmp/container.stat		
+		#----------
+
+		#----------
 		if [[ ! -s tmp/image.lst ]]; then
 			echo "NO IMAGES HAVE BEEN LOADED"
 		else
-			echo -e "${GREEN}AVAILABLE IMAGES${ENDCOLOR}\n-----------------------------------------------------"
+			echo -e "${YELLOW}AVAILABLE IMAGES${ENDCOLOR}\n-----------------------------------------------------"
 			echo -e "$body_img"; echo "-----------------------------------------------------"; fi
 		if [[ ! -s tmp/container.lst ]]; then
 			echo "NO CONTAINERS HAVE BEEN CREATED"
 			echo "-----------------------------------------------------";			
 		else
-			echo -e "${GREEN}CREATED CONTAINERS${ENDCOLOR}\n-----------------------------------------------------"
-			echo -e "$body_ctr"; echo "-----------------------------------------------------"; fi
+			echo -e "${YELLOW}CREATED CONTAINERS${ENDCOLOR}\n-----------------------------------------------------"
+			while IFS= read -r line; do
+				if [[ "$line" == *"Up"* ]]; then
+					echo -e "${GREEN}[+]${ENDCOLOR} $line"
+				else
+					echo -e "${RED}[x]${ENDCOLOR} $line"
+				fi
+			done < tmp/container.stat		
+			echo "-----------------------------------------------------"; fi
 
 		echo -e "${BLUE}[1]${ENDCOLOR} SEARCH IMAGE | ${BLUE}[4]${ENDCOLOR} CREATE CONTAINER | ${BLUE}[7]${ENDCOLOR} START"
 		echo -e "${BLUE}[2]${ENDCOLOR} PULL IMAGE   | ${BLUE}[5]${ENDCOLOR} RENAME CONTAINER | ${BLUE}[8]${ENDCOLOR} STOP"
@@ -108,10 +119,11 @@ create_ctr() {
 	read -p ":: ENTER IMAGE NAME: " image
 	read -p ":: ENTER CONTAINER NAME: " container
 	read -p ":: CHOOSE INTERPRETER: " interpreter
+	read -p ":: PUBLISH SPECIFIC PORTS: " port
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: container have been created ..."
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: initiating shell ...\n--"
-	"$docker_" run -it --name "$container" $image $interpreter
+	"$docker_" run -p "$port":"$port" --hostname "$container" -it --privileged -e "TERM=xterm-256color" --name "$container" $image $interpreter
 	echo " "
 }
 rename_ctr() {
