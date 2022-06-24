@@ -1,1 +1,4 @@
 WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+
+Logging in with your password grants your terminal complete access to your account. 
+For better security, log in with a limited-privilege personal access token. Learn more at https://docs.docker.com/go/access-tokens/
