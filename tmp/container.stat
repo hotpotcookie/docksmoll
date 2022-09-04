@@ -1,3 +1,2 @@
-nextcloud (ubuntu:20.04)                                        | 5ed7820f459e | Exited (0) 4 days ago
-ldap-client (hotpotcookie/ldap-client:2022.5.b)                 | 065d33d325e9 | Exited (0) 8 hours ago
-ldap-http-attacker (hotpotcookie/ldap-http-attacker:2022.5.b)   | d9a2c1a8136d | Exited (0) 8 hours ago
+ldap-http-attacker (hotpotcookie/ldap-http-attacker:2022.7.B)   | 16d3795d3d62 | Up 2 hours
+ldap-client (hotpotcookie/ldap-client:2022.5.b)                 | 3e4e0bbbc313 | Exited (0) 13 days ago
