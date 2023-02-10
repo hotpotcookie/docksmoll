@@ -123,7 +123,11 @@ create_ctr() {
 	echo "--"
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: container have been created ..."
 	echo -e "${YELLOW}[dsmoll]${ENDCOLOR}: initiating shell ...\n--"
-	"$docker_" run -p "$port":"$port" --hostname "$container" -it --privileged -e "TERM=xterm-256color" --name "$container" $image $interpreter
+	if [[ -z "$port" ]]; then
+		"$docker_" run --hostname "$container" -it --privileged --cap-add=SYS_ADMIN -e "TERM=xterm-256color" --name "$container" $image $interpreter				
+	else
+		"$docker_" run -d -p "$port":"$port" --hostname "$container" -it --privileged --cap-add=SYS_ADMIN -e "TERM=xterm-256color" --name "$container" $image $interpreter		
+	fi
 	echo " "
 }
 rename_ctr() {
